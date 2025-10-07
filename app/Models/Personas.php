@@ -1,88 +1,45 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Models;
 
-use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 
-class UserController extends Controller
+class User extends Authenticatable
 {
-    public function Register(Request $request)
-    {
-        $validation = Validator::make($request->all(), [
-            'name' => 'required|max:255',
-            'email' => 'required|email|unique:users'
-        ]);
+    use HasApiTokens, HasFactory, Notifiable;
 
-        if ($validation->fails()) {
-            return response($validation->errors(), 401);
-        }
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'lastname',
+        'email',
+        'phone',
+    ];  
 
-        return $this->createUser($request);
-    }
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
-    private function createUser($request)
-    {
-        $user = new User();
-        $user->name = $request->post("name");
-        $user->email = $request->post("email");
-        $user->save();
-
-        return $user;
-    }
-
-    public function ValidateToken(Request $request)
-    {
-        return auth('api')->user();
-    }
-
-    public function Logout(Request $request)
-    {
-        $request->user()->token()->revoke();
-        return ['message' => 'Token Revoked'];
-    }
-
-    public function BuscarParaEditar($id)
-    {
-        $user = User::find($id);
-
-        if (!$user) {
-            return response()->json(['error' => 'Usuario no encontrado'], 404);
-        }
-
-        return response()->json($user);
-    }
-
-    public function Editar(Request $request)
-    {
-        try {
-            $request->validate([
-                'id' => 'required|integer',
-                'name' => 'required|string',
-                'email' => 'required|email',
-                'phone' => 'nullable|string|max:15',
-                'lastname' => 'nullable|string|max:255'
-            ]);
-
-            $user = User::find($request->id);
-
-            if (!$user) {
-                return response()->json(['error' => 'Usuario no encontrado.'], 404);
-            }
-
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->phone = $request->phone;
-            $user->lastname = $request->lastname;
-
-            $user->save();
-
-            return response()->json(['message' => 'Usuario actualizado correctamente.']);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
 }
-
