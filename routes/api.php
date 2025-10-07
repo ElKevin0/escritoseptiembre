@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\PersonaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,4 +19,4 @@ use App\Http\Controllers\UserController;
 Route::post('/user',[UserController::class,"Register"]);
 Route::post('/editar', [UserController::class, 'Editar']);
 Route::get('/usuario/{id}', [UserController::class, 'BuscarParaEditar']);
-
+Route::get('/personas', [UserController::class, 'index']);

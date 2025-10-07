@@ -84,5 +84,11 @@ class UserController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function index()
+    {
+        $users = \App\Models\User::all();
+        return view('personas.index', compact('users'));
+    }
 }
 
